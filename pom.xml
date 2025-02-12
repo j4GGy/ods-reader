@@ -76,7 +76,7 @@
             <goals>
               <goal>jar-no-fork</goal>
             </goals>
-            <phase>package</phase>
+            <phase>deploy</phase>
           </execution>
         </executions>
       </plugin>
@@ -89,6 +89,7 @@
             <goals>
               <goal>jar</goal>
             </goals>
+            <phase>deploy</phase>
           </execution>
         </executions>
       </plugin>
