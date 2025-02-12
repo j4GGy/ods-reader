@@ -4,7 +4,7 @@
   <groupId>de.zedlitz</groupId>
   <name>ODS reader</name>
   <artifactId>ods-reader</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <description>streaming reader for ODS files</description>
   <url>https://github.com/jze/ods-reader</url>
   <properties>
@@ -70,9 +70,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
+            <id>attach-sources</id>
             <goals>
               <goal>jar-no-fork</goal>
             </goals>
@@ -85,10 +86,10 @@
         <version>3.11.1</version>
         <executions>
           <execution>
+            <id>attach-javadocs</id>
             <goals>
               <goal>jar</goal>
             </goals>
-            <phase>deploy</phase>
           </execution>
         </executions>
       </plugin>
