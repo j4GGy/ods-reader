@@ -265,5 +265,17 @@ public class Cell {
         return value;
     }
 
+    /**
+     * Returns the language independent value of a cell.
+     * <p>
+     * It is the contents of the <code>content</code> or the <code>value</code> attribute of the cell element.
+     */
+    public String getLanguageIndependentContent() {
+        if( value != null) {
+            return value;
+        } else {
+            return getContent();
+        }
+    }
 
 }

@@ -27,7 +27,7 @@ public class Row implements Iterable<Cell> {
     private final int rowNumber;
     int columnIndex = 0;
     private List<Cell> allCells = null;
-    private int emptyCells;
+    private int repeatedCells;
 
     public Row(final XMLStreamReader xpp, int rowNumber) {
         this.xpp = xpp;
@@ -42,13 +42,15 @@ public class Row implements Iterable<Cell> {
         return eventType == XMLStreamConstants.END_ELEMENT && Row.ELEMENT_ROW.equals(xpp.getName());
     }
 
+    Cell cellToRepeat;
+
     public Cell nextCell() {
         Cell result = null;
 
         // while there are empty (faked) cells return one those
-        if (this.emptyCells > 0) {
-            result = new EmptyCell(this, columnIndex);
-            this.emptyCells--;
+        if (this.repeatedCells > 0) {
+            result = cellToRepeat != null ? cellToRepeat : new EmptyCell(this, columnIndex);
+            this.repeatedCells--;
         } else {
             try {
                 int eventType = xpp.getEventType();
@@ -58,7 +60,8 @@ public class Row implements Iterable<Cell> {
                         final Cell myCell = new Cell(xpp, this, columnIndex);
 
                         if (myCell.getNumberColumnsRepeated() > 1) {
-                            this.emptyCells = myCell.getNumberColumnsRepeated() - 1;
+                            this.repeatedCells = myCell.getNumberColumnsRepeated() - 1;
+                            this.cellToRepeat = myCell;
                         }
 
                         result = myCell;

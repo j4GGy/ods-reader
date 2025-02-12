@@ -6,7 +6,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -15,6 +14,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RealworldTest {
+
+    static String table2csv(Table table) {
+        StringBuilder sb = new StringBuilder();
+        Row row = table.nextRow();
+        while (row != null) {
+            Cell cell = row.nextCell();
+            while (cell != null) {
+                sb.append(cell.getLanguageIndependentContent());
+                cell = row.nextCell();
+                if (cell != null) {
+                    sb.append('\t');
+                }
+            }
+
+            sb.append('\n');
+            row = table.nextRow();
+        }
+        return sb.toString();
+    }
 
     /**
      * Tests the use of the Consumers for the various classes.
@@ -176,4 +194,22 @@ public class RealworldTest {
         assertEquals("FALSE", values.get(34));
     }
 
+    /**
+     * This table contains a lot of repeated cells and "gaps" (empty cells).
+     */
+    @Test
+    void ods2csv_gaps() throws XMLStreamException, IOException {
+        String expectedText = "a\tb\tc\td\te\tf\tg\n" +
+                "1\t1\t1\t2\t3\t4\t5\n" +
+                "1\t\t\t\t2\t3\t4\n" +
+                "1\t1\t\t\t2\t2\t\n";
+
+        final Document doc = new Document(getClass().getResourceAsStream("/gaps.ods"));
+        Table table = doc.nextTable();
+
+        String data = table2csv(table);
+
+        assertEquals(expectedText, data);
+
+    }
 }
