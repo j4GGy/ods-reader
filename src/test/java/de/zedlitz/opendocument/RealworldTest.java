@@ -265,6 +265,23 @@ public class RealworldTest {
         String data = table2csv(table);
 
         assertEquals(expectedText, data);
+    }
 
+    /**
+     * This table contains 6 rows, the 4 in the middle being empty.
+     * Check that row count is actually 6.
+     */
+    @Test
+    void testEmptyRows() throws Exception {
+        final Document doc = new Document(getClass().getResourceAsStream("/empty_rows.ods"));
+
+        AtomicInteger numberOfRows = new AtomicInteger(0);
+
+        Table table = doc.nextTable();
+        table.eachRow(row -> {
+            numberOfRows.incrementAndGet();
+        });
+
+        assertEquals(6, numberOfRows.get());
     }
 }

@@ -23,6 +23,12 @@ public class Table implements Sheet, Iterable<Row> {
     private final XMLStreamReader xpp;
     private String name;
     private int rowNumber = 1;
+    /**
+     * Keep track of how many times the current row is repeated.
+     */
+    private int rowRepeats = 0;
+    private Row lastRow = null;
+
 
     Table(final XMLStreamReader parser) {
         this.xpp = parser;
@@ -30,18 +36,22 @@ public class Table implements Sheet, Iterable<Row> {
     }
 
     private boolean isTableEndElement(int eventType) {
-
         return eventType == XMLStreamConstants.END_ELEMENT && Table.ELEMENT_TABLE.equals(xpp.getName());
     }
 
     private boolean isRowStartElement(int eventType) {
-        return eventType == XMLStreamConstants.START_ELEMENT
-                && Row.ELEMENT_ROW.equals(xpp.getName());
+        return eventType == XMLStreamConstants.START_ELEMENT && Row.ELEMENT_ROW.equals(xpp.getName());
     }
 
-    public final Row nextRow() {
-        Row result = null;
 
+    public final Row nextRow() {
+        if (lastRow != null && rowRepeats > 0) {
+            rowNumber++;
+            rowRepeats--;
+            return lastRow;
+        }
+
+        Row result = null;
         try {
             /*
              * look for a table:table element until the end of the document has
@@ -50,10 +60,10 @@ public class Table implements Sheet, Iterable<Row> {
             int eventType = xpp.getEventType();
 
             while (!isTableEndElement(eventType)) {
-
                 if (isRowStartElement(eventType)) {
                     // @PMD:REVIEWED:AvoidInstantiatingObjectsInLoops: by jzedlitz on 12.04.06 15:30
                     result = new Row(xpp, rowNumber);
+                    rowRepeats = result.getRowRepeats();
                     xpp.next();
 
                     break;
@@ -66,9 +76,10 @@ public class Table implements Sheet, Iterable<Row> {
         }
 
         rowNumber++;
+        rowRepeats--;
+        lastRow = result;
         return result;
     }
-
 
     /**
      * @see de.zedlitz.opendocument.Table#getName()

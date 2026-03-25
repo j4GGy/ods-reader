@@ -1,5 +1,7 @@
 package de.zedlitz.opendocument;
 
+import org.apache.commons.lang.math.NumberUtils;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -23,8 +25,14 @@ public class Row implements Iterable<Cell> {
      * Element name "table-row"
      */
     static final QName ELEMENT_ROW = new QName(Document.NS_TABLE, "table-row");
+    static final String ATTRIBUTE_NUMBER_ROWS_REPEATED = "number-rows-repeated";
     private final XMLStreamReader xpp;
     private final int rowNumber;
+    /**
+     * Mostly used for blocks of empty rows.
+     * From XML attribute {@code table:number-rows-repeated}
+     */
+    private final int rowRepeats;
     int columnIndex = 0;
     private List<Cell> allCells = null;
     private int repeatedCells;
@@ -32,6 +40,12 @@ public class Row implements Iterable<Cell> {
     public Row(final XMLStreamReader xpp, int rowNumber) {
         this.xpp = xpp;
         this.rowNumber = rowNumber;
+
+        if (xpp == null) {
+            this.rowRepeats = 0;
+        } else {
+            this.rowRepeats = NumberUtils.toInt(xpp.getAttributeValue(Document.NS_TABLE, ATTRIBUTE_NUMBER_ROWS_REPEATED), 1);
+        }
     }
 
     private boolean isCellStartElement(int eventType) {
@@ -120,5 +134,9 @@ public class Row implements Iterable<Cell> {
 
     public int getRowNum() {
         return this.rowNumber;
+    }
+
+    public int getRowRepeats() {
+        return this.rowRepeats;
     }
 }
